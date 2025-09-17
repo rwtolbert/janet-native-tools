@@ -1,0 +1,6 @@
+{:name "janet-native-tools"
+ :description ```Helpers for building Janet native modules```
+ :author ```Bob Tolbert```
+ :license "MIT"
+ :dependencies @["spork"]
+ :version "0.1.0"}

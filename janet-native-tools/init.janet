@@ -40,7 +40,7 @@
   (def full-cmake-flags @["-B" build-dir "-S" source-dir (string/format "-DCMAKE_BUILD_TYPE=%s" build-type) ;cmake-flags])
   (default cmake-build-flags @["--build" build-dir "--parallel" "--config" build-type])
   (def build-tgt (fn []
-                   (unless (sh/exists? (string/format "%s/%s" build-dir "Makefile"))
+                   (unless (sh/exists? (string/format "%s/%s" build-dir "CMakeCache.txt"))
                      (cmake ;full-cmake-flags))
                    (do (cmake ;cmake-build-flags))))
   (def clean-tgt (fn [&]

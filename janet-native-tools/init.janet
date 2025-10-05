@@ -30,12 +30,19 @@
   []
   (set-command "cmake" *cmakepath*))
 
+(defn- get-build-type []
+  (let [btype (os/getenv "JANET_BUILD_TYPE" "release")]
+    (case btype
+      "debug" "Debug"
+      "develop" "Profile"
+      "Release")))
+
 (defn declare-cmake
   [&named name source-dir build-dir build-type cmake-flags build-dir cmake-build-flags]
   (assert (string? name))
   (assert (sh/exists? source-dir))
   (default build-dir (path/join "_build" name))
-  (default build-type "Release")
+  (default build-type (get-build-type))
   (default cmake-flags @[])
   (def full-cmake-flags @["-B" build-dir "-S" source-dir (string/format "-DCMAKE_BUILD_TYPE=%s" build-type) ;cmake-flags])
   (default cmake-build-flags @["--build" build-dir "--parallel" "--config" build-type])

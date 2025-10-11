@@ -102,27 +102,27 @@
 
 (defn fix-up-ldflags
   ``Fix up meta file so that linker looks in :syspath for some link libs``
-  []
+  [name meta-name]
   # TODO - add mod-name and meta-file as arguments along with list of libs to modify
-  (def jre-dir (path/join (dyn *syspath*) "jre"))
-  (def meta-file (path/join jre-dir "native.meta.janet"))
+  (def bundle-dir (path/join (dyn *syspath*) name))
+  (def meta-file (path/join bundle-dir meta-name))
   (unless (sh/exists? meta-file)
     (printf "Unable to find meta file: %s" meta-file)
     (os/exit 1))
   # get the contents of the current meta file
   (def meta-data (slurp meta-file))
   # find the header/comment if it exists
-  (var comment "# meta file for jre")
+  (var comment (string/format "# meta file for %s" name))
   (let [parts (string/split "\n" meta-data)]
     (when (string/find "#" (parts 0))
       (set comment (parts 0))))
   # parse the current data into a struct
   (def old-meta (parse meta-data))
   # create new lflags that point to the :syspath location
-  (def new-lflags @[(string/format (if (= (os/which) :windows) "/LIBPATH:%s" "-L%s") jre-dir)])
+  (def new-lflags @[(string/format (if (= (os/which) :windows) "/LIBPATH:%s" "-L%s") bundle-dir)])
   # TODO - how to generically pass which lflags to change?
   (loop [item :in (old-meta :lflags)]
-    (when (string/find "-8" item)
+    (when (not (string/has-prefix? "-L" item))
       (array/push new-lflags item)))
   (def new-meta-data @{})
   (loop [key :in (keys old-meta)]
@@ -130,15 +130,3 @@
       (set (new-meta-data key) new-lflags)
       (set (new-meta-data key) (old-meta key))))
   (spit meta-file (string/format "%s\n\n%m" comment (table/to-struct new-meta-data))))
-
-# (defn list-installed []
-#   (printf "syspath     : %s" (dyn :syspath))
-#   (let [jp (os/getenv "JANET_PREFIX")]
-#     (when jp (printf "JANET_PREFIX: %s" jp)))
-#   (let [bd (path/join (dyn :syspath) "bundle")
-#         results @[]]
-#     (when (sh/exists? bd)
-#       (printf "Packages:")
-#       (each item (os/dir bd)
-#         (printf "  %s" item)))))
-

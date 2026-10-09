@@ -119,10 +119,10 @@
   # get the contents of the current meta file
   (def meta-data (slurp meta-file))
   # find the header/comment if it exists
-  (var comment (string/format "# meta file for %s" name))
+  (var comm (string/format "# meta file for %s" name))
   (let [parts (string/split "\n" meta-data)]
     (when (string/find "#" (parts 0))
-      (set comment (parts 0))))
+      (set comm (parts 0))))
   # parse the current data into a struct
   (def old-meta (parse meta-data))
   # create new lflags that point to the :syspath location
@@ -136,4 +136,4 @@
     (if (= key :lflags)
       (set (new-meta-data key) new-lflags)
       (set (new-meta-data key) (old-meta key))))
-  (spit meta-file (string/format "%s\n\n%m" comment (table/to-struct new-meta-data))))
+  (spit meta-file (string/format "%s\n\n%m" comm (table/to-struct new-meta-data))))

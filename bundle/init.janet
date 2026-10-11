@@ -1,42 +1,14 @@
-(defn install
-  [manifest &]
-  (bundle/add manifest "janet-native-tools"))
+(use spork/declare-cc)
 
-(defn pre-build
-  [&]
-  (print "Nothing to pre-build!"))
+# pull info.jdn so we don't duplicate symbols there and
+# in declare-project below
+(def info (-> (slurp "./bundle/info.jdn") parse))
 
-(defn build
-  [&]
-  (pre-build)
-  (print "Nothing to build!"))
+(declare-project
+  :name (info :name)
+  :description (info :description)
+  :version (info :version)
+  :dependencies (info :jpm-dependencies))
 
-(defn clean
-  [&]
-  (print "Nothing to clean!"))
-
-(defn clean-all
-  [&]
-  (clean)
-  (print "Nothing to clean-all!"))
-
-(defn check
-  [&]
-  (var pass-count 0)
-  (var total-count 0)
-  (def failing @[])
-  (each dir (sorted (os/dir "test"))
-    (def path (string "test/" dir))
-    (when (string/has-suffix? ".janet" path)
-      (def pass (zero? (os/execute [(dyn *executable* "janet") "--" path] :p)))
-      (++ total-count)
-      (unless pass (array/push failing path))
-      (when pass (++ pass-count))))
-  (if (= pass-count total-count)
-    (print "All tests passed!")
-    (do
-      (printf "%d of %d passed." pass-count total-count)
-      (print "failing scripts:")
-      (each f failing
-        (print "  " f))
-      (os/exit 1))))
+(declare-source
+  :source ["janet-native-tools"])

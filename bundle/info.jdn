@@ -2,5 +2,5 @@
  :description ```Helpers for building Janet native modules```
  :author ```Bob Tolbert```
  :license "MIT"
- :dependencies @["spork"]
- :version "0.2.1"}
+ :jpm-dependencies @["spork"]
+ :version "0.3.0"}
